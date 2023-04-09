@@ -5,6 +5,7 @@ import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.console.plugin.jvm.reloadPluginConfig
+import net.mamoe.mirai.console.plugin.jvm.reloadPluginData
 import net.mamoe.mirai.utils.info
 
 object TopZEServerInfo : KotlinPlugin(
@@ -19,6 +20,7 @@ object TopZEServerInfo : KotlinPlugin(
     override fun onEnable() {
         //初始化配置文件
         reloadPluginConfig(Config)
+        reloadPluginData(Data)
 
         //注册指令
         ZeCommand().register()
