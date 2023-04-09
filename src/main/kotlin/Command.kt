@@ -2,7 +2,6 @@ package top.xuansu.topzeServerInfo
 
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.CompositeCommand
-import net.mamoe.mirai.console.command.ConsoleCommandSender.sendMessage
 import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.getGroupOrNull
 import top.xuansu.topzeServerInfo.TopZEServerInfo.save
@@ -28,12 +27,14 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
 }
 
 //ze-info命令
-class ZeInfoCommand : SimpleCommand(TopZEServerInfo, "ze-info") {
+class ZeInfoCommand : SimpleCommand(
+    owner = TopZEServerInfo,
+    primaryName = "ze-info") {
     @Handler
-    suspend fun info() {
+    suspend fun CommandSender.info() {
         val messageToSender = "服务器地址：" + Config.serverURL + "\n"
             .plus("当前使用的Token：" + Config.token + "\n")
-            .plus("当前设置的CD:" + Config.coolDownTime + "ms")
+            .plus("当前设置的CD：" + Config.coolDownTime + "ms")
         sendMessage(messageToSender)
     }
 }

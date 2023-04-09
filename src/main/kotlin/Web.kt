@@ -19,7 +19,7 @@ fun webForTopZE(): String {
     response.close()
     //将请求转换为JsonObject并提取其中message数组部分
     val responseDataJSON = JsonParser.parseString(responseData).asJsonObject.getAsJsonArray("message")
-    var serverString = ""
+    var serverString = "  [5E 僵尸逃跑服务器详情]"
     //遍历数组中每一项中所需的数据
     for (i in 0 until responseDataJSON.size()){
         val server = responseDataJSON.get(i)
