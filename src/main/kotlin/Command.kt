@@ -44,23 +44,26 @@ class ZeSetCommand : CompositeCommand(
     primaryName = "ze-set"
 ) {
     @SubCommand("token")
-    fun setToken(value: String) {
+    suspend fun CommandSender.setToken(value: String) {
         Config.token = value
         Config.save()
+        sendMessage("服务器Token设置为 $value")
         return
     }
 
     @SubCommand("url")
-    fun setURL(value: String) {
+    suspend fun CommandSender.setURL(value: String) {
         Config.serverURL = value
         Config.save()
+        sendMessage("服务器URL设置为 $value")
         return
     }
 
     @SubCommand("cd")
-    fun setCD(value: Int) {
+    suspend fun CommandSender.setCD(value: Int) {
         Config.coolDownTime = value
         Config.save()
+        sendMessage("ze请求冷却设置为 $value ms")
         return
     }
 }
