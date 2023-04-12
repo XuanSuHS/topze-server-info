@@ -15,12 +15,12 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
-            //如果本群在cd则退出
-            if (group in Data.groupInCooldown) {
+            //如果本群在cd或者被禁用则退出
+            if (group in Data.groupInCooldown || group in Data.groupStopped) {
                 return
             }
             //不在则将本群加入cd中
-            GroupCooldown(group)
+            groupCooldown(group)
         }
         webresponse = webForTopZE()
         sendMessage(webresponse)
@@ -73,5 +73,25 @@ class ZeSetCommand : CompositeCommand(
         Config.reload()
         sendMessage("Config 重载完成")
         return
+    }
+
+    @SubCommand("stop")
+    suspend fun CommandSender.stop() {
+        val group: Long
+        if (getGroupOrNull() != null) {
+            group = getGroupOrNull()!!.id
+            Data.groupStopped.add(group)
+            return
+        }
+    }
+
+    @SubCommand("start")
+    suspend fun CommandSender.start() {
+        val group: Long
+        if (getGroupOrNull() != null) {
+            group = getGroupOrNull()!!.id
+            Data.groupStopped.remove(group)
+            return
+        }
     }
 }

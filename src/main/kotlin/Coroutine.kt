@@ -6,7 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-fun GroupCooldown(group: Long) {
+fun groupCooldown(group: Long) {
     CoroutineScope(Dispatchers.Default).launch {
         Data.groupInCooldown.add(group)
         delay(Config.coolDownTime.toLong())
