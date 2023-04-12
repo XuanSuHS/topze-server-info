@@ -4,6 +4,7 @@ import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.getGroupOrNull
+import top.xuansu.topzeServerInfo.TopZEServerInfo.reload
 import top.xuansu.topzeServerInfo.TopZEServerInfo.save
 
 //主命令
@@ -64,6 +65,13 @@ class ZeSetCommand : CompositeCommand(
         Config.coolDownTime = value
         Config.save()
         sendMessage("ze请求冷却设置为 $value ms")
+        return
+    }
+
+    @SubCommand("reload")
+    suspend fun CommandSender.reload() {
+        Config.reload()
+        sendMessage("Config 重载完成")
         return
     }
 }
