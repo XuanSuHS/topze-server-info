@@ -12,7 +12,7 @@ object TopZEServerInfo : KotlinPlugin(
     JvmPluginDescription(
         id = "top.xuansu.topze-server-info",
         name = "TopZE Server Info",
-        version = "0.1.1",
+        version = "0.1.2",
     ) {
         author("XuanSu")
     }
