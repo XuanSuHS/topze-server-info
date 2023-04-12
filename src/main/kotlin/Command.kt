@@ -64,7 +64,7 @@ class ZeSetCommand : CompositeCommand(
     suspend fun CommandSender.setCD(value: Int) {
         Config.coolDownTime = value
         Config.save()
-        sendMessage("ze请求冷却设置为 $value ms")
+        sendMessage("ze请求冷却设置为 $value 秒")
         return
     }
 
@@ -81,6 +81,7 @@ class ZeSetCommand : CompositeCommand(
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
             Data.groupStopped.add(group)
+            sendMessage("关闭本群服务器查询功能")
             return
         }
     }
@@ -91,6 +92,7 @@ class ZeSetCommand : CompositeCommand(
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
             Data.groupStopped.remove(group)
+            sendMessage("开启本群服务器查询功能")
             return
         }
     }
