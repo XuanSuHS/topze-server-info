@@ -8,4 +8,5 @@ object Config : AutoSavePluginConfig("config") {
     var token: String by value("fec9d45f7416256443b5e051c200fc1d")
     var serverURL: String by value("https://api-clan.rushbgogogo.com/api/v1/systemApp/gameServerRoomsList?mode=ze")
     var coolDownTime: Int by value(90)
+    var enabledGroups: MutableSet<Long> by value(mutableSetOf())
 }

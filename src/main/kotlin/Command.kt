@@ -15,8 +15,8 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
-            //如果本群在cd或者被禁用则退出
-            if (group in Data.groupInCooldown || group in Data.groupStopped) {
+            //如果本群在cd或者未被启用则退出
+            if (group in Data.groupInCooldown || group !in Config.enabledGroups) {
                 return
             }
             //不在则将本群加入cd中
@@ -35,7 +35,7 @@ class ZeInfoCommand : SimpleCommand(
     suspend fun CommandSender.info() {
         val messageToSender = "服务器地址：" + Config.serverURL + "\n"
             .plus("当前使用的Token：" + Config.token + "\n")
-            .plus("当前设置的CD：" + Config.coolDownTime + "ms")
+            .plus("当前设置的CD：" + Config.coolDownTime + "S")
         sendMessage(messageToSender)
     }
 }
@@ -75,25 +75,49 @@ class ZeSetCommand : CompositeCommand(
         return
     }
 
-    @SubCommand("stop")
-    suspend fun CommandSender.stop() {
+    @SubCommand("disable")
+    suspend fun CommandSender.disable() {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
-            Data.groupStopped.add(group)
+            Config.enabledGroups.remove(group)
             sendMessage("关闭本群服务器查询功能")
             return
         }
     }
 
-    @SubCommand("start")
-    suspend fun CommandSender.start() {
+    @SubCommand("enable")
+    suspend fun CommandSender.enable() {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
-            Data.groupStopped.remove(group)
+            Config.enabledGroups.add(group)
             sendMessage("开启本群服务器查询功能")
             return
         }
+    }
+
+    @SubCommand("removeCD")
+    suspend fun CommandSender.removeCD(arg: String) {
+        if (arg == "all") {
+            Data.groupInCooldown.clear()
+            sendMessage("已清除所有群聊的CD")
+            return
+        }
+
+        val groupID: Long
+        if (arg == "this") {
+            if (getGroupOrNull() != null) {
+                groupID = getGroupOrNull()!!.id
+                Data.groupInCooldown.remove(groupID)
+                sendMessage("清除本群CD")
+            }
+            else {
+                sendMessage("请在群聊环境内触发")
+            }
+            return
+        }
+        sendMessage("选项仅可为\"all\"或\"this\"，请重新输入")
+        return
     }
 }
