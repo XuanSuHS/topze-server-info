@@ -1,26 +1,29 @@
 package top.xuansu.topzeServerInfo
 
+import com.google.gson.JsonParser
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.getGroupOrNull
+import top.xuansu.topzeServerInfo.TopZEServerInfo.dataFolder
 import top.xuansu.topzeServerInfo.TopZEServerInfo.reload
 import top.xuansu.topzeServerInfo.TopZEServerInfo.save
 
 //主命令
 class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
     private var webresponse = ""
+
     @Handler
     suspend fun CommandSender.ze() {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
             //如果本群在cd或者未被启用则退出
-            if (group in Data.groupInCooldown || group !in Config.enabledGroups) {
+            if (group in Data.groupInCoolDown || group !in Config.enabledGroups) {
                 return
             }
             //不在则将本群加入cd中
-            groupCooldown(group)
+            setGroupInCoolDown(group)
         }
         webresponse = webForTopZE()
         sendMessage(webresponse)
@@ -30,12 +33,13 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
 //ze-info命令
 class ZeInfoCommand : SimpleCommand(
     owner = TopZEServerInfo,
-    primaryName = "ze-info") {
+    primaryName = "ze-info"
+) {
     @Handler
     suspend fun CommandSender.info() {
         val messageToSender = "服务器地址：" + Config.serverURL + "\n"
             .plus("当前使用的Token：" + Config.token + "\n")
-            .plus("当前设置的CD：" + Config.coolDownTime + "S")
+            .plus("当前设置的CD：" + Config.coolDownTime + " 秒")
         sendMessage(messageToSender)
     }
 }
@@ -100,24 +104,43 @@ class ZeSetCommand : CompositeCommand(
     @SubCommand("removeCD")
     suspend fun CommandSender.removeCD(arg: String) {
         if (arg == "all") {
-            Data.groupInCooldown.clear()
+
+            //清除所有群的CD
+            Data.groupNoMoreCoolDown = Data.groupNoMoreCoolDown.mapValues { true } as MutableMap
             sendMessage("已清除所有群聊的CD")
             return
         }
 
-        val groupID: Long
+        val group: Long
         if (arg == "this") {
             if (getGroupOrNull() != null) {
-                groupID = getGroupOrNull()!!.id
-                Data.groupInCooldown.remove(groupID)
+                group = getGroupOrNull()!!.id
+                Data.groupNoMoreCoolDown[group] = true
                 sendMessage("清除本群CD")
-            }
-            else {
+            } else {
                 sendMessage("请在群聊环境内触发")
             }
             return
         }
         sendMessage("选项仅可为\"all\"或\"this\"，请重新输入")
         return
+    }
+
+    @SubCommand("dev")
+    suspend fun CommandSender.dev(arg: String) {
+        val txtInput = dataFolder.resolve("data.cfg").readText()
+        val content = txtInput
+            .replace("\"\t\t\"", "\": \"")
+            .replace("\"\n\t\t\"", "\",\n\t\t\"")
+            .replace("}\n\t\"", "},\n\t\"")
+            .replace("\"\n\t{", "\":\n\t{")
+            .replace("\"MapInfo\"", "")
+        val allMapData = JsonParser.parseString(content).asJsonObject
+        val mapInfo = allMapData.get(arg).asJsonObject
+        val mapCNName = mapInfo.get("chinese").toString().replace("\"","")
+        val mapDifficulty = mapInfo.get("level").toString().replace("\"","")
+        val mapTag = mapInfo.get("tag").toString().replace("\"","")
+        val message = mapCNName.plus("\n").plus(mapDifficulty).plus("\n").plus(mapTag)
+        sendMessage(message)
     }
 }
