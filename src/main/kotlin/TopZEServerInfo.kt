@@ -27,6 +27,11 @@ object TopZEServerInfo : KotlinPlugin(
         ZeInfoCommand().register()
         ZeSetCommand().register()
 
+        getMapData()
+
+        Data.groupNoMoreCoolDown = Data.groupNoMoreCoolDown.mapValues { true } as MutableMap
+        Data.groupCDTime = Data.groupCDTime.mapValues { 0 } as MutableMap
+
         logger.info { "Plugin loaded" }
     }
 

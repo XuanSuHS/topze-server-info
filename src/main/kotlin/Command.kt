@@ -1,11 +1,9 @@
 package top.xuansu.topzeServerInfo
 
-import com.google.gson.JsonParser
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.SimpleCommand
 import net.mamoe.mirai.console.command.getGroupOrNull
-import top.xuansu.topzeServerInfo.TopZEServerInfo.dataFolder
 import top.xuansu.topzeServerInfo.TopZEServerInfo.reload
 import top.xuansu.topzeServerInfo.TopZEServerInfo.save
 
@@ -19,7 +17,7 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
             //如果本群在cd或者未被启用则退出
-            if (group in Data.groupInCoolDown || group !in Config.enabledGroups) {
+            if (Data.groupCDTime[group]!! > 0 || group !in Config.enabledGroups) {
                 return
             }
             //不在则将本群加入cd中
@@ -37,9 +35,18 @@ class ZeInfoCommand : SimpleCommand(
 ) {
     @Handler
     suspend fun CommandSender.info() {
-        val messageToSender = "服务器地址：" + Config.serverURL + "\n"
+        var messageToSender = "服务器地址：" + Config.serverURL + "\n"
             .plus("当前使用的Token：" + Config.token + "\n")
-            .plus("当前设置的CD：" + Config.coolDownTime + " 秒")
+            .plus("当前设置的CD：" + Config.coolDownTime + " 秒\n")
+            .plus("服务器最低显示人数："+ Config.minPlayer)
+        if (getGroupOrNull() != null) {
+            val group = getGroupOrNull()!!.id
+            if (group in Config.enabledGroups) {
+                messageToSender = messageToSender.plus("\n当前群聊剩余CD：" + Data.groupCDTime[group] + "秒")
+            } else {
+                messageToSender = messageToSender.plus("\n当前群聊未启用本插件")
+            }
+        }
         sendMessage(messageToSender)
     }
 }
@@ -85,6 +92,7 @@ class ZeSetCommand : CompositeCommand(
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
             Config.enabledGroups.remove(group)
+            Config.save()
             sendMessage("关闭本群服务器查询功能")
             return
         }
@@ -96,6 +104,8 @@ class ZeSetCommand : CompositeCommand(
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
             Config.enabledGroups.add(group)
+            Data.groupCDTime[group] = 0
+            Config.save()
             sendMessage("开启本群服务器查询功能")
             return
         }
@@ -126,21 +136,15 @@ class ZeSetCommand : CompositeCommand(
         return
     }
 
-    @SubCommand("dev")
-    suspend fun CommandSender.dev(arg: String) {
-        val txtInput = dataFolder.resolve("data.cfg").readText()
-        val content = txtInput
-            .replace("\"\t\t\"", "\": \"")
-            .replace("\"\n\t\t\"", "\",\n\t\t\"")
-            .replace("}\n\t\"", "},\n\t\"")
-            .replace("\"\n\t{", "\":\n\t{")
-            .replace("\"MapInfo\"", "")
-        val allMapData = JsonParser.parseString(content).asJsonObject
-        val mapInfo = allMapData.get(arg).asJsonObject
-        val mapCNName = mapInfo.get("chinese").toString().replace("\"","")
-        val mapDifficulty = mapInfo.get("level").toString().replace("\"","")
-        val mapTag = mapInfo.get("tag").toString().replace("\"","")
-        val message = mapCNName.plus("\n").plus(mapDifficulty).plus("\n").plus(mapTag)
-        sendMessage(message)
+    @SubCommand("updateMapData")
+    suspend fun CommandSender.updateMapData() {
+        getMapData()
+        sendMessage("地图数据更新完毕")
+    }
+
+    @SubCommand("minPlayer")
+    suspend fun CommandSender.minPlayer(arg: Int) {
+        Config.minPlayer = arg
+        sendMessage("最低人数设置为 $arg 人")
     }
 }
