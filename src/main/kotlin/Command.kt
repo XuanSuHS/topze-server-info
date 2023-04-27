@@ -117,6 +117,7 @@ class ZeSetCommand : CompositeCommand(
 
             //清除所有群的CD
             Data.groupNoMoreCoolDown = Data.groupNoMoreCoolDown.mapValues { true } as MutableMap
+            Data.groupCDTime = Data.groupCDTime.mapValues { 0 } as MutableMap
             sendMessage("已清除所有群聊的CD")
             return
         }
@@ -126,6 +127,7 @@ class ZeSetCommand : CompositeCommand(
             if (getGroupOrNull() != null) {
                 group = getGroupOrNull()!!.id
                 Data.groupNoMoreCoolDown[group] = true
+                Data.groupCDTime[group] = 0
                 sendMessage("清除本群CD")
             } else {
                 sendMessage("请在群聊环境内触发")

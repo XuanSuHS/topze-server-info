@@ -13,12 +13,13 @@ fun setGroupInCoolDown(group: Long) {
         Data.groupCDTime[group] = Config.coolDownTime
         Data.groupNoMoreCoolDown[group] = false
 
-        while (Data.groupCDTime[group]!! > 0 && !Data.groupNoMoreCoolDown[group]!!) {
+        while (Data.groupCDTime[group]!! > 0) {
+            if (Data.groupNoMoreCoolDown[group] == true) {
+                continue
+            }
             delay(1000)
             Data.groupCDTime[group] = Data.groupCDTime[group]!! - 1
         }
-
-        Data.groupNoMoreCoolDown[group] = true
         return@launch
     }
     return
