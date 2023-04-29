@@ -4,11 +4,6 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import top.xuansu.topzeServerInfo.TopZEServerInfo.dataFolder
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 
 var mapData: JsonObject = JsonObject()
 
@@ -31,22 +26,23 @@ fun webForTopZE(): String {
     var serverString = "  [5E 僵尸逃跑服务器详情]\n怎么这个时候还有人在玩ze啊"
     //遍历数组中每一项中所需的数据
     for (i in 0 until responseDataJSON.size()) {
-        val server = responseDataJSON.get(i)
-        val name = server.asJsonObject.get("Name").toString().replace("\"", "")
-        val playerCount = server.asJsonObject.get("PlayerCount").toString().replace("\"", "").toInt()
+        val server = responseDataJSON.get(i).asJsonObject
+        val name = server.get("Name").toString().replace("\"", "")
+        val playerCount = server.get("PlayerCount").toString().replace("\"", "").toInt()
+        val maxPlayer = server.get("MaxPlayer").toString().replace("\"", "").toInt()
         //服务器少于指定人数时跳过
         if (playerCount < Config.minPlayer) {
             continue
         }
         serverString = serverString.replace("怎么这个时候还有人在玩ze啊","")
-        val gameMap = server.asJsonObject.get("GameMap").toString().replace("\"", "")
+        val gameMap = server.get("GameMap").toString().replace("\"", "")
 
         serverString = serverString
             .plus("\n$name  ")
-            .plus("$playerCount 人\n")
+            .plus("$playerCount/$maxPlayer\n")
             .plus("$gameMap \n")
 
-        //如果mapchinese文件中找不到此地图则不显示相关内容
+        //如果mapData中找不到此地图则不显示相关内容
         if (mapData.has(gameMap)) {
             val mapInfo = mapData.get(gameMap).asJsonObject
             val mapCNName = mapInfo.get("chinese").toString().replace("\"", "")
@@ -54,15 +50,13 @@ fun webForTopZE(): String {
             val mapTag = mapInfo.get("tag").toString().replace("\"", "")
             serverString = serverString
                 .plus("译名：$mapCNName\n")
-                .plus("难度：$mapDifficulty\n")
-                .plus("Tag：$mapTag \n")
+                .plus("信息：$mapDifficulty $mapTag")
         }
     }
     return serverString
 }
 
 fun getMapData() {
-    val path = Paths.get(File(dataFolder.path, "mapData.json").path)
     val serverURL =
         "https://ghproxy.net/https://raw.githubusercontent.com/mr2b-wmk/GOCommunity-ZEConfigs/master/mapchinese.cfg"
     val okHttpClient = OkHttpClient.Builder().build()
@@ -78,7 +72,5 @@ fun getMapData() {
         .replace("}\n\t\"", "},\n\t\"")
         .replace("\"\n\t{", "\":\n\t{")
         .replace("\"MapInfo\"", "")
-    val inputStream = mapDataJsonOut.byteInputStream()
-    Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING)
     mapData = JsonParser.parseString(mapDataJsonOut).asJsonObject
 }
