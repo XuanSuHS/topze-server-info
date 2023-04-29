@@ -41,10 +41,10 @@ class ZeInfoCommand : SimpleCommand(
             .plus("服务器最低显示人数："+ Config.minPlayer)
         if (getGroupOrNull() != null) {
             val group = getGroupOrNull()!!.id
-            if (group in Config.enabledGroups) {
-                messageToSender = messageToSender.plus("\n当前群聊剩余CD：" + Data.groupCDTime[group] + "秒")
+            messageToSender = if (group in Config.enabledGroups) {
+                messageToSender.plus("\n当前群聊剩余CD：" + Data.groupCDTime[group] + "秒")
             } else {
-                messageToSender = messageToSender.plus("\n当前群聊未启用本插件")
+                messageToSender.plus("\n当前群聊未启用本插件")
             }
         }
         sendMessage(messageToSender)
@@ -56,6 +56,7 @@ class ZeSetCommand : CompositeCommand(
     primaryName = "ze-set"
 ) {
     @SubCommand("token")
+    @Description("设置服务器Token")
     suspend fun CommandSender.setToken(value: String) {
         Config.token = value
         Config.save()
@@ -64,6 +65,7 @@ class ZeSetCommand : CompositeCommand(
     }
 
     @SubCommand("url")
+    @Description("设置服务器获取URL")
     suspend fun CommandSender.setURL(value: String) {
         Config.serverURL = value
         Config.save()
@@ -72,6 +74,7 @@ class ZeSetCommand : CompositeCommand(
     }
 
     @SubCommand("cd")
+    @Description("设置 /ze 命令使用冷却")
     suspend fun CommandSender.setCD(value: Int) {
         Config.coolDownTime = value
         Config.save()
@@ -80,6 +83,7 @@ class ZeSetCommand : CompositeCommand(
     }
 
     @SubCommand("reload")
+    @Description("重载插件配置文件")
     suspend fun CommandSender.reload() {
         Config.reload()
         sendMessage("Config 重载完成")
@@ -87,6 +91,7 @@ class ZeSetCommand : CompositeCommand(
     }
 
     @SubCommand("disable")
+    @Description("关闭插件")
     suspend fun CommandSender.disable() {
         val group: Long
         if (getGroupOrNull() != null) {
@@ -99,6 +104,7 @@ class ZeSetCommand : CompositeCommand(
     }
 
     @SubCommand("enable")
+    @Description("开启插件")
     suspend fun CommandSender.enable() {
         val group: Long
         if (getGroupOrNull() != null) {
@@ -111,8 +117,9 @@ class ZeSetCommand : CompositeCommand(
         }
     }
 
-    @SubCommand("removeCD")
-    suspend fun CommandSender.removeCD(arg: String) {
+    @SubCommand("clearcd")
+    @Description("清除查询冷却，子选项\"all\"，\"this\"")
+    suspend fun CommandSender.clearCD(arg: String) {
         if (arg == "all") {
 
             //清除所有群的CD
@@ -139,12 +146,14 @@ class ZeSetCommand : CompositeCommand(
     }
 
     @SubCommand("updateMapData")
+    @Description("更新服务器地图本地化文件")
     suspend fun CommandSender.updateMapData() {
         getMapData()
         sendMessage("地图数据更新完毕")
     }
 
     @SubCommand("minPlayer")
+    @Description("设置最少显示人数")
     suspend fun CommandSender.minPlayer(arg: Int) {
         Config.minPlayer = arg
         sendMessage("最低人数设置为 $arg 人")
