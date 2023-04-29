@@ -34,11 +34,11 @@ fun webForTopZE(): String {
         if (playerCount < Config.minPlayer) {
             continue
         }
-        serverString = serverString.replace("怎么这个时候还有人在玩ze啊","")
+        serverString = serverString.replace("\n怎么这个时候还有人在玩ze啊","")
         val gameMap = server.get("GameMap").toString().replace("\"", "")
 
         serverString = serverString
-            .plus("\n$name  ")
+            .plus("\n\n$name  ")
             .plus("$playerCount/$maxPlayer\n")
             .plus("$gameMap \n")
 
