@@ -40,7 +40,7 @@ fun webForTopZE(): String {
         serverString = serverString
             .plus("\n\n$name  ")
             .plus("$playerCount/$maxPlayer\n")
-            .plus("$gameMap \n")
+            .plus("地图：$gameMap \n")
 
         //如果mapData中找不到此地图则不显示相关内容
         if (mapData.has(gameMap)) {
