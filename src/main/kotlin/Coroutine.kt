@@ -6,11 +6,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-fun groupCooldown(group: Long) {
+fun setGroupInCoolDown(group: Long) {
     CoroutineScope(Dispatchers.Default).launch {
-        Data.groupInCooldown.add(group)
-        delay((Config.coolDownTime * 1000).toLong())
-        Data.groupInCooldown.remove(group)
+
+        //开始计时前初始化计时相关参数
+        Data.groupCDTime[group] = Config.coolDownTime
+        Data.groupNoMoreCoolDown[group] = false
+
+        while (Data.groupCDTime[group]!! > 0) {
+            if (Data.groupNoMoreCoolDown[group] == true) {
+                continue
+            }
+            delay(1000)
+            Data.groupCDTime[group] = Data.groupCDTime[group]!! - 1
+        }
         return@launch
     }
     return
