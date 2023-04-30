@@ -1,5 +1,5 @@
 plugins {
-    val kotlinVersion = "1.7.22"
+    val kotlinVersion = "1.8.21"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
 
@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "top.xuansu.topze-server-info"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
