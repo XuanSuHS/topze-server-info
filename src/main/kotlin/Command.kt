@@ -12,7 +12,7 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
     private var webresponse = ""
 
     @Handler
-    suspend fun CommandSender.ze(id:String = "0") {
+    suspend fun CommandSender.ze(server:String = "0") {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
@@ -23,13 +23,13 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
             //不在则将本群加入cd中
             setGroupInCoolDown(group)
         }
-        val server = if (id.toIntOrNull() != null) {
-            id.toIntOrNull()!!
+        val id = if (server.toIntOrNull() != null) {
+            server.toIntOrNull()!!
         } else {
             sendMessage("无此服务器")
             return
         }
-        webresponse = getData(server)
+        webresponse = getData(id)
         sendMessage(webresponse)
     }
 }
