@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "top.xuansu.topze-server-info"
-version = "0.1.6-B1"
+version = "0.1.6-B2"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
