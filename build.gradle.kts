@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "top.xuansu.topze-server-info"
-version = "0.1.5-B1"
+version = "0.1.6-B1"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
@@ -17,4 +17,10 @@ repositories {
 dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     compileOnly("com.squareup.okhttp3:okhttp:4.10.0")
+}
+
+tasks.register("printName") {
+    doLast {
+        println(project.name)
+    }
 }

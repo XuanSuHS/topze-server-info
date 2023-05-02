@@ -12,7 +12,7 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
     private var webresponse = ""
 
     @Handler
-    suspend fun CommandSender.ze() {
+    suspend fun CommandSender.ze(id:String = "0") {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
@@ -23,7 +23,13 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
             //不在则将本群加入cd中
             setGroupInCoolDown(group)
         }
-        webresponse = webForTopZE()
+        val server = if (id.toIntOrNull() != null) {
+            id.toIntOrNull()!!
+        } else {
+            sendMessage("无此服务器")
+            return
+        }
+        webresponse = getData(server)
         sendMessage(webresponse)
     }
 }
@@ -148,7 +154,7 @@ class ZeSetCommand : CompositeCommand(
     @SubCommand("updateMapData")
     @Description("更新服务器地图本地化文件")
     suspend fun CommandSender.updateMapData() {
-        getMapData()
+        updateMapData()
         sendMessage("地图数据更新完毕")
     }
 

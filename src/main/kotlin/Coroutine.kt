@@ -1,9 +1,8 @@
 package top.xuansu.topzeServerInfo
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import net.mamoe.mirai.utils.info
+import top.xuansu.topzeServerInfo.TopZEServerInfo.logger
 
 
 fun setGroupInCoolDown(group: Long) {
@@ -23,4 +22,24 @@ fun setGroupInCoolDown(group: Long) {
         return@launch
     }
     return
+}
+
+fun backGround() {
+    CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
+            initializeMapData()
+            webForTopZE()
+            logger.info { "5e地图数据已加载" }
+        }
+        webForTopZE()
+        logger.info { "5e数据已初始化" }
+        while (true) {
+            withContext(Dispatchers.IO) {
+                Thread.sleep(15000)
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                webForTopZE()
+            }
+        }
+    }
 }
