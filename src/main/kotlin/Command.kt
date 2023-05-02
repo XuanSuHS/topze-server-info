@@ -125,7 +125,7 @@ class ZeSetCommand : CompositeCommand(
 
     @SubCommand("clearcd")
     @Description("清除查询冷却，子选项\"all\"，\"this\"")
-    suspend fun CommandSender.clearCD(arg: String) {
+    suspend fun CommandSender.clearCD(arg: String = "this") {
         if (arg == "all") {
 
             //清除所有群的CD
