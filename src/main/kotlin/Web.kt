@@ -6,6 +6,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import top.xuansu.topzeServerInfo.TopZEServerInfo.dataFolder
 import java.io.File
+import java.net.InetSocketAddress
+import java.net.Proxy
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
@@ -91,7 +93,7 @@ fun getData(id: Int = 0): String {
             var response = "   [5e ZE 服务器数据]\n"
             var serverWithNotEnoughPlayers = 0
             for (i in 1..6) {
-                if (playerCount[i] <= Config.minPlayer) {
+                if (playerCount[i] < Config.minPlayer) {
                     serverWithNotEnoughPlayers += 1
                     continue
                 }
@@ -133,17 +135,25 @@ fun getData(id: Int = 0): String {
 fun initializeMapData() {
     if (dataFolder.resolve("mapData.json").exists()) {
         mapData = JsonParser.parseString(dataFolder.resolve("mapData.json").readText()).asJsonObject
-    }
-    else {
-        updateMapData()
+    } else {
+    updateMapData()
     }
 }
 
 fun updateMapData() {
-    val serverURL = "https://raw.fastgit.org/mr2b-wmk/GOCommunity-ZEConfigs/master/mapchinese.cfg"
-    val okHttpClient = OkHttpClient.Builder().build()
+    val proxyAdd = Config.proxyAddress.split(":")[0]
+    val proxyPort = Config.proxyAddress.split(":")[1].toInt()
+
+    val okHttpClient = if (Config.useProxy) {
+        OkHttpClient.Builder()
+            .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxyAdd, proxyPort)))
+            .build()
+    } else {
+        OkHttpClient.Builder().build()
+    }
+
     val request = Request.Builder()
-        .url(serverURL)
+        .url(Config.mapCNURL)
         .get()
         .build()
     val response = okHttpClient.newCall(request).execute()

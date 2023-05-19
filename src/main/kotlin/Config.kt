@@ -10,4 +10,7 @@ object Config : AutoSavePluginConfig("config") {
     var coolDownTime: Int by value(90)
     var enabledGroups: MutableSet<Long> by value(mutableSetOf())
     var minPlayer: Int by value(10)
+    var proxyAddress: String by value("127.0.0.1:7890")
+    var mapCNURL: String by value("https://raw.githubusercontent.com/mr2b-wmk/GOCommunity-ZEConfigs/master/mapchinese.cfg")
+    var useProxy: Boolean by value(false)
 }

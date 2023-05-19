@@ -12,7 +12,7 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
     private var webresponse = ""
 
     @Handler
-    suspend fun CommandSender.ze(id:String = "0") {
+    suspend fun CommandSender.ze(server:String = "0") {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
@@ -23,13 +23,13 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
             //不在则将本群加入cd中
             setGroupInCoolDown(group)
         }
-        val server = if (id.toIntOrNull() != null) {
-            id.toIntOrNull()!!
+        val id = if (server.toIntOrNull() != null) {
+            server.toIntOrNull()!!
         } else {
             sendMessage("无此服务器")
             return
         }
-        webresponse = getData(server)
+        webresponse = getData(id)
         sendMessage(webresponse)
     }
 }
@@ -125,7 +125,7 @@ class ZeSetCommand : CompositeCommand(
 
     @SubCommand("clearcd")
     @Description("清除查询冷却，子选项\"all\"，\"this\"")
-    suspend fun CommandSender.clearCD(arg: String) {
+    suspend fun CommandSender.clearCD(arg: String = "this") {
         if (arg == "all") {
 
             //清除所有群的CD
@@ -158,10 +158,43 @@ class ZeSetCommand : CompositeCommand(
         sendMessage("地图数据更新完毕")
     }
 
+    @SubCommand("proxy")
+    @Description("更新服务器地图本地化文件")
+    suspend fun CommandSender.proxy(arg:String = "") {
+        when (arg) {
+            "on" -> {
+                Config.useProxy = true
+                Config.save()
+                sendMessage("开启代理功能")
+            }
+            "off" -> {
+                Config.useProxy = false
+                Config.save()
+                sendMessage("关闭代理功能")
+            }
+            else -> {
+                Config.proxyAddress = arg
+                sendMessage("代理地址更新为 $arg")
+                Config.save()
+            }
+        }
+    }
+
     @SubCommand("minPlayer")
     @Description("设置最少显示人数")
     suspend fun CommandSender.minPlayer(arg: Int) {
         Config.minPlayer = arg
         sendMessage("最低人数设置为 $arg 人")
+    }
+}
+
+class ZeDevCommand : SimpleCommand(
+    owner = TopZEServerInfo,
+    primaryName = "ze-dev"
+) {
+    @Handler
+    suspend fun CommandSender.info() {
+        updateMapData()
+        sendMessage("地图数据更新完毕")
     }
 }

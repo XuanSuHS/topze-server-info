@@ -12,7 +12,7 @@ object TopZEServerInfo : KotlinPlugin(
     JvmPluginDescription(
         id = "top.xuansu.topze-server-info",
         name = "TopZE Server Info",
-        version = "0.1.6-B2",
+        version = "0.1.6-B3",
     ) {
         author("XuanSu")
     }
@@ -26,8 +26,8 @@ object TopZEServerInfo : KotlinPlugin(
         ZeCommand().register()
         ZeInfoCommand().register()
         ZeSetCommand().register()
+        ZeDevCommand().register()
 
-        initializeMapData()
         backGround()
 
         Data.groupNoMoreCoolDown = Data.groupNoMoreCoolDown.mapValues { true } as MutableMap
