@@ -158,10 +158,43 @@ class ZeSetCommand : CompositeCommand(
         sendMessage("地图数据更新完毕")
     }
 
+    @SubCommand("proxy")
+    @Description("更新服务器地图本地化文件")
+    suspend fun CommandSender.proxy(arg:String = "") {
+        when (arg) {
+            "on" -> {
+                Config.useProxy = true
+                Config.save()
+                sendMessage("开启代理功能")
+            }
+            "off" -> {
+                Config.useProxy = false
+                Config.save()
+                sendMessage("关闭代理功能")
+            }
+            else -> {
+                Config.proxyAddress = arg
+                sendMessage("代理地址更新为 $arg")
+                Config.save()
+            }
+        }
+    }
+
     @SubCommand("minPlayer")
     @Description("设置最少显示人数")
     suspend fun CommandSender.minPlayer(arg: Int) {
         Config.minPlayer = arg
         sendMessage("最低人数设置为 $arg 人")
+    }
+}
+
+class ZeDevCommand : SimpleCommand(
+    owner = TopZEServerInfo,
+    primaryName = "ze-dev"
+) {
+    @Handler
+    suspend fun CommandSender.info() {
+        updateMapData()
+        sendMessage("地图数据更新完毕")
     }
 }
