@@ -12,7 +12,7 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
     private var webresponse = ""
 
     @Handler
-    suspend fun CommandSender.ze(server:String = "0") {
+    suspend fun CommandSender.ze(server: String = "0") {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
@@ -29,7 +29,13 @@ class ZeCommand : SimpleCommand(TopZEServerInfo, "ze") {
             sendMessage("无此服务器")
             return
         }
-        webresponse = getData(id)
+        val getDataResponse = getData(id)
+        if (getDataResponse.first) {
+            webresponse = getDataResponse.second
+        } else {
+            sendMessage(getDataResponse.second)
+            return
+        }
         sendMessage(webresponse)
     }
 }
@@ -44,7 +50,7 @@ class ZeInfoCommand : SimpleCommand(
         var messageToSender = "服务器地址：" + Config.serverURL + "\n"
             .plus("当前使用的Token：" + Config.token + "\n")
             .plus("当前设置的CD：" + Config.coolDownTime + " 秒\n")
-            .plus("服务器最低显示人数："+ Config.minPlayer)
+            .plus("服务器最低显示人数：" + Config.minPlayer)
         if (getGroupOrNull() != null) {
             val group = getGroupOrNull()!!.id
             messageToSender = if (group in Config.enabledGroups) {
@@ -70,15 +76,6 @@ class ZeSetCommand : CompositeCommand(
         return
     }
 
-    @SubCommand("url")
-    @Description("设置服务器获取URL")
-    suspend fun CommandSender.setURL(value: String) {
-        Config.serverURL = value
-        Config.save()
-        sendMessage("服务器URL设置为 $value")
-        return
-    }
-
     @SubCommand("cd")
     @Description("设置 /ze 命令使用冷却")
     suspend fun CommandSender.setCD(value: Int) {
@@ -96,9 +93,9 @@ class ZeSetCommand : CompositeCommand(
         return
     }
 
-    @SubCommand("disable")
+    @SubCommand("off")
     @Description("关闭插件")
-    suspend fun CommandSender.disable() {
+    suspend fun CommandSender.off() {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
@@ -109,9 +106,9 @@ class ZeSetCommand : CompositeCommand(
         }
     }
 
-    @SubCommand("enable")
+    @SubCommand("on")
     @Description("开启插件")
-    suspend fun CommandSender.enable() {
+    suspend fun CommandSender.on() {
         val group: Long
         if (getGroupOrNull() != null) {
             group = getGroupOrNull()!!.id
@@ -153,25 +150,39 @@ class ZeSetCommand : CompositeCommand(
 
     @SubCommand("updateMapData")
     @Description("更新服务器地图本地化文件")
-    suspend fun CommandSender.updateMapData() {
-        updateMapData()
-        sendMessage("地图数据更新完毕")
+    suspend fun CommandSender.update() {
+        val updateResult = updateMapData()
+        if (!updateResult.first) {
+            sendMessage(updateResult.second)
+        } else {
+            sendMessage("地图数据更新完毕")
+        }
     }
 
     @SubCommand("proxy")
-    @Description("更新服务器地图本地化文件")
-    suspend fun CommandSender.proxy(arg:String = "") {
+    @Description("代理设置")
+    suspend fun CommandSender.proxy(arg: String = "") {
         when (arg) {
             "on" -> {
-                Config.useProxy = true
-                Config.save()
-                sendMessage("开启代理功能")
+                val checkResult = checkProxy(Config.proxyAddress)
+                if (checkResult.first) {
+                    Config.useProxy = true
+                    Config.save()
+                    sendMessage("开启代理功能")
+                } else {
+                    sendMessage(
+                        "网络错误，请检查代理\n"
+                            .plus("信息：${checkResult.second}")
+                    )
+                }
             }
+
             "off" -> {
                 Config.useProxy = false
                 Config.save()
                 sendMessage("关闭代理功能")
             }
+
             else -> {
                 Config.proxyAddress = arg
                 sendMessage("代理地址更新为 $arg")
