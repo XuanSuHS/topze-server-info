@@ -27,18 +27,28 @@ fun setGroupInCoolDown(group: Long) {
 fun backGround() {
     CoroutineScope(Dispatchers.IO).launch {
         CoroutineScope(Dispatchers.IO).launch {
-            initializeMapData()
-            webForTopZE()
-            logger.info { "5e地图数据已加载" }
+            val initResponse = initializeMapData()
+            if (!initResponse.first) {
+                logger.info { "地图数据加载错误：${initResponse.second}" }
+            } else {
+                logger.info { "地图信息加载完成" }
+            }
+
+            val webResponse = webForTopZE()
+            if (!webResponse.first) {
+                logger.info {"更新服务器信息时出错：${webResponse.second}"}
+            }
         }
-        webForTopZE()
-        logger.info { "5e数据已初始化" }
+
         while (true) {
             withContext(Dispatchers.IO) {
                 Thread.sleep(15000)
             }
             CoroutineScope(Dispatchers.IO).launch {
-                webForTopZE()
+                val webResponse = webForTopZE()
+                if (!webResponse.first) {
+                    logger.info {"更新服务器信息时出错：${webResponse.second}"}
+                }
             }
         }
     }
